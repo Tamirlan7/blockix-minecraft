@@ -8,7 +8,6 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,10 +72,11 @@ public class JwtService {
                 .issuedAt(now)
                 .expiration(Date.from(now.toInstant().plus(tokenTtl)))
                 .userId(1L)
+                .tokenType(tokenType)
                 .build();
     }
 
-    private Token deserializeToken(String strToken) {
+    public Token deserializeToken(String strToken) {
         try {
             var signedJWT = SignedJWT.parse(strToken);
 
@@ -100,7 +99,7 @@ public class JwtService {
         return null;
     }
 
-    private String serializeToken(Token token) {
+    public String serializeToken(Token token) {
         JWSHeader jwsHeader = new JWSHeader.Builder(jwsAlgorithm)
                 .keyID(token.getId())
                 .build();
