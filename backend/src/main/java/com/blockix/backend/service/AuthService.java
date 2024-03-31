@@ -23,7 +23,7 @@ public class AuthService {
                         .username(body.username())
                         .password(passwordEncoder.encode(body.password()))
                         .email(body.email())
-                        .role(Role.USER)
+                        .role(Role.ROLE_USER)
                         .build()
         );
 

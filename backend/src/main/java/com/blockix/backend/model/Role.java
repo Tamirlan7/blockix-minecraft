@@ -1,7 +1,7 @@
 package com.blockix.backend.model;
 
 public enum Role {
-    ADMIN,
-    MODER,
-    USER,
+    ROLE_ADMIN,
+    ROLE_MODER,
+    ROLE_USER,
 }
