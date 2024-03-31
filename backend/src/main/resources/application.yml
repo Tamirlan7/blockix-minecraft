@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/blockix
+    url: jdbc:postgresql://localhost:5432/blockix?serverTimezone=UTC
     username: postgres
     password: 1954623790
     driver-class-name: org.postgresql.Driver
@@ -10,6 +10,8 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
+        jdbc:
+          time_zone: UTC
         format_sql: true
 
 jwt:

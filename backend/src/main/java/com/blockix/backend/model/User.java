@@ -2,6 +2,8 @@ package com.blockix.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +38,7 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false, unique = true)
+    @Email
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -43,11 +46,10 @@ public class User implements UserDetails {
     private Role role = Role.ROLE_USER;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private ZonedDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private ZonedDateTime updatedAt;
 
     /* userDetails info... */
