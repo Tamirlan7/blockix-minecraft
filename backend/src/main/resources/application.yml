@@ -15,3 +15,6 @@ spring:
 jwt:
   secret-key: '{"kty": "oct", "k": "kL9yZ1mB5aV4bU9qH4mO0wN5hT3cL6gP2xV1cU5wA7oH9xV7qW8oA6hG5bU4l"}'
   token-expiration: '15m'
+logging:
+  level:
+    org.springframework.security: TRACE

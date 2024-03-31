@@ -8,8 +8,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component
 public class JwtAuthenticationConfigurer extends AbstractHttpConfigurer<JwtAuthenticationConfigurer, HttpSecurity> {
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final JwtAuthenticationUserDetailsService userDetailsService;
@@ -24,6 +26,7 @@ public class JwtAuthenticationConfigurer extends AbstractHttpConfigurer<JwtAuthe
                 builder.getSharedObject(AuthenticationManager.class),
                 jwtAuthenticationConverter
         );
+
         authenticationFilter.setSuccessHandler((request, response, authentication) ->
                 response.setStatus(200)
         );

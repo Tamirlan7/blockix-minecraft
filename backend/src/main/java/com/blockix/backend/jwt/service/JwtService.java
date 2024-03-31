@@ -2,6 +2,7 @@ package com.blockix.backend.jwt.service;
 
 import com.blockix.backend.jwt.model.Token;
 import com.blockix.backend.jwt.model.TokenType;
+import com.blockix.backend.model.User;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -11,7 +12,6 @@ import com.nimbusds.jwt.SignedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -25,16 +25,19 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret-key}")
-    private String SECRET_KEY;
+    private final String SECRET_KEY;
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtService.class);
     private final JWSSigner jwsSigner;
     private final JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
     private final JWSVerifier jwsVerifier;
-
     private final Duration tokenTtl;
 
-    public JwtService(@Value("${jwt.token-expiration}") String tokenExpiration) throws ParseException, JOSEException {
+    public JwtService(
+            @Value("${jwt.secret-key}") String secretKey,
+            @Value("${jwt.token-expiration}") String tokenExpiration
+    ) throws ParseException, JOSEException {
+        this.SECRET_KEY = secretKey;
+
         jwsSigner = new MACSigner(OctetSequenceKey.parse(SECRET_KEY));
         jwsVerifier = new MACVerifier(OctetSequenceKey.parse(SECRET_KEY));
 
@@ -57,10 +60,22 @@ public class JwtService {
 
     }
 
-    public Token generateToken(Authentication authentication, TokenType tokenType) {
+    public String generateAccessToken(User user) {
+        return this.serializeToken(
+                this.createToken(user, TokenType.ACCESS_TOKEN)
+        );
+    }
+
+    public String generateRefreshToken(User user) {
+        return this.serializeToken(
+                this.createToken(user, TokenType.REFRESH_TOKEN)
+        );
+    }
+
+    private Token createToken(User user, TokenType tokenType) {
         Date now = new Date(System.currentTimeMillis());
 
-        List<String> authorities = new ArrayList<>(authentication
+        List<String> authorities = new ArrayList<>(user
                 .getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -71,7 +86,7 @@ public class JwtService {
                 .roles(authorities)
                 .issuedAt(now)
                 .expiration(Date.from(now.toInstant().plus(tokenTtl)))
-                .userId(1L)
+                .userId(user.getId())
                 .tokenType(tokenType)
                 .build();
     }
@@ -99,7 +114,7 @@ public class JwtService {
         return null;
     }
 
-    public String serializeToken(Token token) {
+    private String serializeToken(Token token) {
         JWSHeader jwsHeader = new JWSHeader.Builder(jwsAlgorithm)
                 .keyID(token.getId())
                 .build();
