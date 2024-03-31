@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,39 +26,23 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
-    private final String SECRET_KEY;
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtService.class);
     private final JWSSigner jwsSigner;
     private final JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
     private final JWSVerifier jwsVerifier;
-    private final Duration tokenTtl;
+    private final Duration accessTokenTtl;
+    private final Duration refreshTokenTtl;
 
     public JwtService(
             @Value("${jwt.secret-key}") String secretKey,
-            @Value("${jwt.token-expiration}") String tokenExpiration
+            @Value("${jwt.access-token-expiration}") String accessTokenExpiration,
+            @Value("${jwt.refresh-token-expiration}") String refreshTokenExpiration
     ) throws ParseException, JOSEException {
-        this.SECRET_KEY = secretKey;
+        jwsSigner = new MACSigner(OctetSequenceKey.parse(secretKey));
+        jwsVerifier = new MACVerifier(OctetSequenceKey.parse(secretKey));
 
-        jwsSigner = new MACSigner(OctetSequenceKey.parse(SECRET_KEY));
-        jwsVerifier = new MACVerifier(OctetSequenceKey.parse(SECRET_KEY));
-
-        int duration = Integer.parseInt(tokenExpiration.substring(0, tokenExpiration.length() - 1));
-
-        switch (tokenExpiration.charAt(tokenExpiration.length() - 1)) {
-            case 'm':
-                this.tokenTtl = Duration.ofMinutes(duration);
-                break;
-            case 'h':
-                this.tokenTtl = Duration.ofHours(duration);
-                break;
-            case 'd':
-                this.tokenTtl = Duration.ofDays(duration);
-                break;
-            default:
-                // if in the application.yml jwt.access-token-expiration is not specified
-                this.tokenTtl = Duration.ofMinutes(15);
-        }
-
+        this.accessTokenTtl = this.parseDuration(accessTokenExpiration);
+        this.refreshTokenTtl = this.parseDuration(refreshTokenExpiration);
     }
 
     public String generateAccessToken(User user) {
@@ -73,7 +58,7 @@ public class JwtService {
     }
 
     private Token createToken(User user, TokenType tokenType) {
-        Date now = new Date(System.currentTimeMillis());
+        Instant now = Instant.now();
 
         List<String> authorities = new ArrayList<>(user
                 .getAuthorities()
@@ -81,11 +66,15 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .toList());
 
+        Instant expiration = tokenType == TokenType.ACCESS_TOKEN
+                ? now.plus(accessTokenTtl)
+                : now.plus(refreshTokenTtl);
+
         return Token.builder()
                 .id(UUID.randomUUID().toString())
                 .roles(authorities)
                 .issuedAt(now)
-                .expiration(Date.from(now.toInstant().plus(tokenTtl)))
+                .expiration(expiration)
                 .userId(user.getId())
                 .tokenType(tokenType)
                 .build();
@@ -100,8 +89,8 @@ public class JwtService {
 
                 return Token.builder()
                         .id(claimsSet.getJWTID())
-                        .expiration(claimsSet.getExpirationTime())
-                        .issuedAt(claimsSet.getIssueTime())
+                        .expiration(claimsSet.getExpirationTime().toInstant())
+                        .issuedAt(claimsSet.getIssueTime().toInstant())
                         .roles(claimsSet.getStringListClaim("roles"))
                         .userId(claimsSet.getLongClaim("userId"))
                         .tokenType(TokenType.valueOf(claimsSet.getStringClaim("tokenType")))
@@ -120,8 +109,8 @@ public class JwtService {
                 .build();
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .expirationTime(token.getExpiration())
-                .issueTime(token.getIssuedAt())
+                .expirationTime(Date.from(token.getExpiration()))
+                .issueTime(Date.from(token.getIssuedAt()))
                 .jwtID(token.getId())
                 .claim("tokenType", token.getTokenType().toString())
                 .claim("roles", token.getRoles())
@@ -140,4 +129,25 @@ public class JwtService {
         return null;
     }
 
+    public boolean isValid(Token token) {
+        return !this.isExpired(token);
+    }
+
+    private boolean isExpired(Token token) {
+        return token.getExpiration().isBefore(Instant.now());
+    }
+
+    private Duration parseDuration(String tokenDuration) {
+
+        int duration = Integer.parseInt(tokenDuration.substring(0, tokenDuration.length() - 1));
+
+        return switch (tokenDuration.charAt(tokenDuration.length() - 1)) {
+            case 'm' -> Duration.ofMinutes(duration);
+            case 'h' -> Duration.ofHours(duration);
+            case 'd' -> Duration.ofDays(duration);
+            default ->
+                // if in the application.yml jwt.access-token-expiration is not specified
+                    Duration.ofMinutes(15);
+        };
+    }
 }

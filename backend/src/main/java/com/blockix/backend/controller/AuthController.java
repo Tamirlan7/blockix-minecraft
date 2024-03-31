@@ -1,8 +1,11 @@
 package com.blockix.backend.controller;
 
+import com.blockix.backend.dto.LoginRequest;
+import com.blockix.backend.dto.RefreshRequest;
 import com.blockix.backend.dto.RegisterRequest;
 import com.blockix.backend.model.Tokens;
 import com.blockix.backend.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +22,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<Tokens> register(@RequestBody RegisterRequest body) {
+    public ResponseEntity<Tokens> register(@RequestBody @Valid RegisterRequest body) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authService.register(body));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Tokens> login(@RequestBody @Valid LoginRequest body) {
+        return ResponseEntity.ok(authService.login(body));
+    }
+    @PostMapping("/refresh")
+    public ResponseEntity<Tokens> refresh(@RequestBody @Valid RefreshRequest body) {
+        return ResponseEntity.ok(authService.refresh(body));
     }
 
 }

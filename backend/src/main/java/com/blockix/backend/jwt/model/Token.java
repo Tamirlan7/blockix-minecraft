@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -14,8 +16,8 @@ import java.util.List;
 @Builder
 public class Token {
     private String id;
-    private Date issuedAt;
-    private Date expiration;
+    private Instant issuedAt;
+    private Instant expiration;
     private TokenType tokenType;
     private List<String> roles;
     private Long userId;

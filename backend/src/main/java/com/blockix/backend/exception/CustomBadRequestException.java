@@ -7,17 +7,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class CustomNotFoundException extends RuntimeException {
+public class CustomBadRequestException extends RuntimeException {
     private final Map<String, Object> errors = new HashMap<>();
-    private final int httpStatusCode = HttpStatus.NOT_FOUND.value();
+    private final int httpStatusCode = HttpStatus.BAD_REQUEST.value();
 
-    public CustomNotFoundException(String message) {
+    public CustomBadRequestException(String message) {
         super(message);
         this.errors.put("message", message);
         this.initErrors();
     }
 
-    public CustomNotFoundException(String message, Map<String, Object> errors) {
+    public CustomBadRequestException(String message, Map<String, Object> errors) {
         this(message);
         this.errors.putAll(errors);
     }
