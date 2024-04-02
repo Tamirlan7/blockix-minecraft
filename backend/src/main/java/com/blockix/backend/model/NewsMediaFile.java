@@ -19,13 +19,13 @@ public class NewsMediaFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(nullable = false)
+    @Column(name = "path", nullable = false)
     private String path;
 
     @ManyToOne(fetch = FetchType.LAZY)

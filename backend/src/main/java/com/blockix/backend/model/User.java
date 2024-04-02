@@ -3,6 +3,7 @@ package com.blockix.backend.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,26 +31,34 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     @JsonIgnore
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     @Email
     private String email;
 
+    @ManyToMany(mappedBy = "userLikes", fetch = FetchType.LAZY)
+    private List<News> likedNews;
+
+    @Column(name = "shared_count", nullable = false)
+    @PositiveOrZero
+    private Long sharedCount = 0L;
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false)
     private Role role = Role.ROLE_USER;
 
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private ZonedDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private ZonedDateTime updatedAt;
 
     /* userDetails info... */

@@ -23,18 +23,38 @@ public class News {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(nullable = false, length = 5000)
+    @Column(name = "body", nullable = false, length = 5000)
     private String body;
 
     @OneToMany(mappedBy = "news", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "media_files")
     private List<NewsMediaFile> mediaFiles;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_view_news",
+            joinColumns = @JoinColumn(name = "news_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_view_id")
+    )
+    private List<UserView> views;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_news_likes",
+            joinColumns = @JoinColumn(name = "news_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> userLikes;
+
     @CreationTimestamp
+    @Column(name = "created_at")
     private ZonedDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private ZonedDateTime updatedAt;
+
 }
