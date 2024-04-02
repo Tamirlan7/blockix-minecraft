@@ -30,10 +30,17 @@ public class News {
     private String body;
 
     @OneToMany(mappedBy = "news", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "media_files")
     private List<NewsMediaFile> mediaFiles;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_news_message",
+            joinColumns = @JoinColumn(name = "news_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_message_id")
+    )
+    private List<UserNewsMessage> messages;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_view_news",
             joinColumns = @JoinColumn(name = "news_id"),
@@ -41,7 +48,7 @@ public class News {
     )
     private List<UserView> views;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_news_likes",
             joinColumns = @JoinColumn(name = "news_id"),

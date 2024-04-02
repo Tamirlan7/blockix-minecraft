@@ -45,6 +45,9 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "userLikes", fetch = FetchType.LAZY)
     private List<News> likedNews;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserView> viewedNews;
+
     @Column(name = "shared_count", nullable = false)
     @PositiveOrZero
     private Long sharedCount = 0L;
