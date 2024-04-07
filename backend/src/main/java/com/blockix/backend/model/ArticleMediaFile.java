@@ -8,12 +8,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "t_news_media_file")
+@Table(name = "t_article_media_file")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder
-public class NewsMediaFile {
+@Builder(toBuilder = true)
+public class ArticleMediaFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +29,8 @@ public class NewsMediaFile {
     private String path;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "news_id")
+    @JoinColumn(name = "article_id")
     @JsonIgnore
-    private News news;
+    private Article article;
 }
 

@@ -1,15 +1,14 @@
 package com.blockix.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-@Table(name = "t_news")
+@Table(name = "t_user_view")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -27,6 +26,7 @@ public class UserView {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "views", fetch = FetchType.LAZY)
-    private List<News> viewedNews;
+    private List<Article> viewedArticles = new LinkedList<>();
 }

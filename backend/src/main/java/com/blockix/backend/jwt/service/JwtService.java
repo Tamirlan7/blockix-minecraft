@@ -60,19 +60,13 @@ public class JwtService {
     private Token createToken(User user, TokenType tokenType) {
         Instant now = Instant.now();
 
-        List<String> authorities = new ArrayList<>(user
-                .getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList());
-
         Instant expiration = tokenType == TokenType.ACCESS_TOKEN
                 ? now.plus(accessTokenTtl)
                 : now.plus(refreshTokenTtl);
 
         return Token.builder()
                 .id(UUID.randomUUID().toString())
-                .roles(authorities)
+                .roles(List.of(user.getRole().name()))
                 .issuedAt(now)
                 .expiration(expiration)
                 .userId(user.getId())

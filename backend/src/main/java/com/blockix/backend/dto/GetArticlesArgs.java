@@ -5,9 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Data
-public class CreateNewsResponse {
+public class GetArticlesArgs {
+    private String title;
+    private Integer size;
+    private Integer page;
 }

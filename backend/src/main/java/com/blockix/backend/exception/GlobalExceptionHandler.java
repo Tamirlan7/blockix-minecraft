@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
                 .body(ex.getErrors());
     }
 
+    @ExceptionHandler(CustomInternalServerException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomInternalServerException(CustomInternalServerException ex) {
+        return ResponseEntity.status(ex.getHttpStatusCode())
+                .body(ex.getErrors());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

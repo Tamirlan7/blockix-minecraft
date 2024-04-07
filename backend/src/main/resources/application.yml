@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/blockix?serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/blockix
     username: postgres
     password: 1954623790
     driver-class-name: org.postgresql.Driver
@@ -10,13 +10,11 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        jdbc:
-          time_zone: UTC
         format_sql: true
-
+    show-sql: false
 jwt:
   secret-key: '{"kty": "oct", "k": "kL9yZ1mB5aV4bU9qH4mO0wN5hT3cL6gP2xV1cU5wA7oH9xV7qW8oA6hG5bU4l"}'
-  access-token-expiration: '15m'
+  access-token-expiration: '30d'
   refresh-token-expiration: '30d'
 logging:
   level:
