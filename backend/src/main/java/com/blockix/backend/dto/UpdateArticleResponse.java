@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class GetArticlesResponse {
+public class UpdateArticleResponse {
     private long id;
     private String title;
     private String body;
