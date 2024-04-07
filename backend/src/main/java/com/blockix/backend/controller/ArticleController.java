@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,15 +71,6 @@ public class ArticleController {
                 .body(articleService.shareArticleById(id));
     }
 
-    @PutMapping("/{articleId}/user/{userId}/like")
-    public ResponseEntity<UpdateArticleResponse> likeArticleWithUserId(
-            @PathVariable("articleId") Long articleId,
-            @PathVariable("userId") Long userId
-    ) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(articleService.likeArticleWithUserId(articleId, userId));
-    }
-
     @PutMapping("/{articleId}/like")
     public ResponseEntity<UpdateArticleResponse> likeArticle(
             @PathVariable("articleId") Long articleId,
@@ -88,13 +80,20 @@ public class ArticleController {
                 .body(articleService.likeArticle(articleId, authentication));
     }
 
+    @PutMapping("/{articleId}/view/anonymous")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<UpdateArticleResponse> viewArticleAnonymously(@PathVariable("articleId") Long articleId) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(articleService.viewArticleAnonymously(articleId));
+    }
+
     @PutMapping("/{articleId}/view")
     public ResponseEntity<UpdateArticleResponse> viewArticle(
             @PathVariable("articleId") Long articleId,
-            @RequestBody ViewArticleRequest body
+            Authentication authentication
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(articleService.viewArticle(articleId, body));
+                .body(articleService.viewArticle(articleId, authentication));
     }
 
 }

@@ -89,6 +89,7 @@ public class ArticleService {
         return articleMapper.mapToDeleteArticleResponse(id);
     }
 
+    @Transactional
     public UpdateArticleResponse updateArticleById(Long id, UpdateArticleRequest body) {
         Article article = this.getArticleById(id);
 
@@ -113,14 +114,13 @@ public class ArticleService {
         return articleMapper.mapToUpdateArticleResponse(updatedArticle);
     }
 
-    public UpdateArticleResponse likeArticleWithUserId(Long articleId, Long userId) {
+    @Transactional
+    public UpdateArticleResponse likeArticle(Long articleId, Authentication authentication) {
+        User user = this.extractUserFromAuthentication(authentication);
         Article article = this.getArticleById(articleId);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomNotFoundException("User not found"));
-
         // Проверяем, поставил ли пользователь уже лайк для этой статьи
-        if (article.getUserLikes().stream().anyMatch(u -> u.getId().equals(userId))) {
+        if (article.getUserLikes().stream().anyMatch(u -> u.getId().equals(user.getId()))) {
             throw new CustomBadRequestException("User already liked this article");
         }
 
@@ -132,53 +132,44 @@ public class ArticleService {
         return articleMapper.mapToUpdateArticleResponse(article);
     }
 
+    @Transactional
+    public UpdateArticleResponse viewArticleAnonymously(Long articleId) {
+        Article article = this.getArticleById(articleId);
+        UserView view = UserView.builder()
+                .anonymousUser(true)
+                .viewedArticles(new LinkedList<>(Collections.singletonList(article)))
+                .build();
 
-    public UpdateArticleResponse likeArticle(Long articleId, Authentication authentication) {
-        if (authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            User user = userRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new CustomNotFoundException("User not found, the problem might be with token"));
-
-            return this.likeArticleWithUserId(articleId, user.getId());
-        }
-
-        throw new CustomBadRequestException("User is not authenticated, the problem might be with token");
+        article.getViews().add(view);
+        article = articleRepository.save(article);
+        return articleMapper.mapToUpdateArticleResponse(article);
     }
 
-    public UpdateArticleResponse viewArticle(Long articleId, ViewArticleRequest body) {
+    @Transactional
+    public UpdateArticleResponse viewArticle(Long articleId, Authentication authentication) {
+        User user = this.extractUserFromAuthentication(authentication);
         Article article = this.getArticleById(articleId);
 
-        if (body.anonymous()) {
-            UserView view = UserView.builder()
-                    .anonymousUser(true)
-                    .viewedArticles(new LinkedList<>(Collections.singletonList(article)))
-                    .build();
+        boolean alreadyViewed = user.getViewedArticles()
+                .stream()
+                .anyMatch(
+                        userView -> userView.getViewedArticles()
+                                .stream()
+                                .anyMatch(viewedArticle -> viewedArticle.getId().equals(articleId))
+                );
 
-            article.getViews().add(view);
-        } else {
-            User user = userRepository.findById(body.userId())
-                    .orElseThrow(() -> new CustomNotFoundException("User with id " + body.userId() + " not found"));
-
-            boolean alreadyViewed = user.getViewedArticles()
-                    .stream()
-                    .anyMatch(
-                            userView -> userView.getViewedArticles()
-                                    .stream()
-                                    .anyMatch(viewedArticle -> viewedArticle.getId().equals(articleId))
-                    );
-
-            if (alreadyViewed) {
-                throw new CustomBadRequestException("User already viewed this article");
-            }
-
-            UserView view = UserView.builder()
-                    .anonymousUser(false)
-                    .user(user)
-                    .viewedArticles(new LinkedList<>(Collections.singletonList(article)))
-                    .build();
-
-            user.getViewedArticles().add(view);
-            article.getViews().add(view);
+        if (alreadyViewed) {
+            throw new CustomBadRequestException("User already viewed this article");
         }
+
+        UserView view = UserView.builder()
+                .anonymousUser(false)
+                .user(user)
+                .viewedArticles(new LinkedList<>(Collections.singletonList(article)))
+                .build();
+
+        user.getViewedArticles().add(view);
+        article.getViews().add(view);
 
         article = articleRepository.save(article);
         return articleMapper.mapToUpdateArticleResponse(article);
@@ -187,5 +178,14 @@ public class ArticleService {
     private Article getArticleById(Long articleId) {
         return articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomNotFoundException("Article with id " + articleId + " not found"));
+    }
+
+    private User extractUserFromAuthentication(Authentication authentication) {
+        if (authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new CustomNotFoundException("User not found, the problem might be with token"));
+        }
+
+        throw new CustomBadRequestException("User is not authenticated, the problem might be with token");
     }
 }
