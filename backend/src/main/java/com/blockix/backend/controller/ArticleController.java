@@ -1,6 +1,7 @@
 package com.blockix.backend.controller;
 
 import com.blockix.backend.dto.*;
+import com.blockix.backend.service.ArticleComment;
 import com.blockix.backend.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -96,4 +97,13 @@ public class ArticleController {
                 .body(articleService.viewArticle(articleId, authentication));
     }
 
+    @PostMapping("/{articleId}/comment")
+    public ResponseEntity<UpdateArticleResponse> createArticleComment(
+            @PathVariable("articleId") Long articleId,
+            @RequestBody ArticleComment comment,
+            Authentication authentication
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(articleService.createArticleComment(articleId, comment, authentication));
+    }
 }

@@ -34,21 +34,11 @@ public class Article {
     private List<ArticleMediaFile> mediaFiles = new LinkedList<>();
 
     @ToString.Exclude
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "t_user_article_messages",
-            joinColumns = @JoinColumn(name = "article_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_message_id")
-    )
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "article")
     private List<UserArticleMessage> messages = new LinkedList<>();
 
     @ToString.Exclude
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "t_user_view_article",
-            joinColumns = @JoinColumn(name = "article_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_view_id")
-    )
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "article")
     private List<UserView> views = new LinkedList<>();
 
     @ToString.Exclude

@@ -1,5 +1,6 @@
 package com.blockix.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,9 +25,10 @@ public class UserView {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
-    @ToString.Exclude
-    @ManyToMany(mappedBy = "views", fetch = FetchType.LAZY)
-    private List<Article> viewedArticles = new LinkedList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id")
+    private Article article;
 }

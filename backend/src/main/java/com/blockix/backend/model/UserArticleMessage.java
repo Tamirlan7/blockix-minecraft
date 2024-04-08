@@ -1,5 +1,6 @@
 package com.blockix.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -20,7 +21,7 @@ public class UserArticleMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "message", nullable = false)
+    @Column(name = "message", nullable = false, length = 2500)
     @NotBlank
     private String message;
 
@@ -28,7 +29,7 @@ public class UserArticleMessage {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ToString.Exclude
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "messages")
-    private List<Article> articles = new LinkedList<>();
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Article article;
 }

@@ -8,6 +8,7 @@ import com.blockix.backend.mapper.ArticleMapper;
 import com.blockix.backend.model.*;
 import com.blockix.backend.repository.ArticleMediaFileRepository;
 import com.blockix.backend.repository.ArticleRepository;
+import com.blockix.backend.repository.UserArticleMessageRepository;
 import com.blockix.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -137,7 +138,7 @@ public class ArticleService {
         Article article = this.getArticleById(articleId);
         UserView view = UserView.builder()
                 .anonymousUser(true)
-                .viewedArticles(new LinkedList<>(Collections.singletonList(article)))
+                .article(article)
                 .build();
 
         article.getViews().add(view);
@@ -153,9 +154,7 @@ public class ArticleService {
         boolean alreadyViewed = user.getViewedArticles()
                 .stream()
                 .anyMatch(
-                        userView -> userView.getViewedArticles()
-                                .stream()
-                                .anyMatch(viewedArticle -> viewedArticle.getId().equals(articleId))
+                        userView -> userView.getArticle().getId().equals(articleId)
                 );
 
         if (alreadyViewed) {
@@ -164,8 +163,8 @@ public class ArticleService {
 
         UserView view = UserView.builder()
                 .anonymousUser(false)
+                .article(article)
                 .user(user)
-                .viewedArticles(new LinkedList<>(Collections.singletonList(article)))
                 .build();
 
         user.getViewedArticles().add(view);
@@ -187,5 +186,21 @@ public class ArticleService {
         }
 
         throw new CustomBadRequestException("User is not authenticated, the problem might be with token");
+    }
+
+    public UpdateArticleResponse createArticleComment(Long articleId, ArticleComment body, Authentication authentication) {
+        User user = this.extractUserFromAuthentication(authentication);
+        Article article = this.getArticleById(articleId);
+
+        UserArticleMessage message = UserArticleMessage.builder()
+                .message(body.comment())
+                .user(user)
+                .article(article)
+                .build();
+
+        user.getMessages().add(message);
+        article.getMessages().add(message);
+        article = articleRepository.save(article);
+        return articleMapper.mapToUpdateArticleResponse(article);
     }
 }
