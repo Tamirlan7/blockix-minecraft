@@ -4,17 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 @Entity
 @Table(name = "t_user_view")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class UserView {
+public class ArticleView {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

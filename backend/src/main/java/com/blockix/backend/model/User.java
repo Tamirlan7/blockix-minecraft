@@ -9,7 +9,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.ZonedDateTime;
 import java.util.LinkedList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -41,12 +40,12 @@ public class User {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserView> viewedArticles = new LinkedList<>();
+    private List<ArticleView> viewedArticles = new LinkedList<>();
 
     @ToString.Exclude
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserArticleMessage> messages = new LinkedList<>();
+    private List<ArticleMessage> messages = new LinkedList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

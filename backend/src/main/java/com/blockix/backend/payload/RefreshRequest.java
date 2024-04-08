@@ -1,4 +1,4 @@
-package com.blockix.backend.dto;
+package com.blockix.backend.payload;
 
 import jakarta.validation.constraints.NotBlank;
 

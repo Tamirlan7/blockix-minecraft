@@ -23,7 +23,7 @@ public class JwtAuthenticationUserDetailsService implements AuthenticationUserDe
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
         if (token.getPrincipal() instanceof Token accessToken) {
             User user = userRepository.findById(accessToken.getUserId())
-                    .orElseThrow(() -> new CustomNotFoundException("User with id + " + accessToken.getUserId() + " not found"));
+                    .orElseThrow(() -> new CustomNotFoundException("User with id " + accessToken.getUserId() + " not found"));
 
             return CustomUserDetails.builder()
                     .role(user.getRole())

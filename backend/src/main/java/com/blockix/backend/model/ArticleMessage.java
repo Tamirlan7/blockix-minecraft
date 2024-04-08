@@ -5,17 +5,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 @Entity
 @Table(name = "t_user_article_message")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class UserArticleMessage {
+public class ArticleMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

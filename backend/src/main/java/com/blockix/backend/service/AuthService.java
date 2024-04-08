@@ -1,8 +1,8 @@
 package com.blockix.backend.service;
 
-import com.blockix.backend.dto.LoginRequest;
-import com.blockix.backend.dto.RefreshRequest;
-import com.blockix.backend.dto.RegisterRequest;
+import com.blockix.backend.payload.LoginRequest;
+import com.blockix.backend.payload.RefreshRequest;
+import com.blockix.backend.payload.RegisterRequest;
 import com.blockix.backend.exception.CustomBadRequestException;
 import com.blockix.backend.exception.CustomNotFoundException;
 import com.blockix.backend.jwt.model.Token;

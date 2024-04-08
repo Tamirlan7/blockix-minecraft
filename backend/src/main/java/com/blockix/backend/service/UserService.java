@@ -5,7 +5,7 @@ import com.blockix.backend.exception.CustomNotFoundException;
 import com.blockix.backend.model.Article;
 import com.blockix.backend.model.CustomUserDetails;
 import com.blockix.backend.model.User;
-import com.blockix.backend.model.UserView;
+import com.blockix.backend.model.ArticleView;
 import com.blockix.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -23,7 +23,7 @@ public class UserService {
     public List<Article> findAllViewedArticles(Authentication authentication) {
         User user = this.extractUserFromAuthentication(authentication);
 
-        List<Article> result = user.getViewedArticles().stream().map(UserView::getArticle).toList();
+        List<Article> result = user.getViewedArticles().stream().map(ArticleView::getArticle).toList();
         return result;
     }
 

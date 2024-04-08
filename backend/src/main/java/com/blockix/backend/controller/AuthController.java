@@ -1,8 +1,8 @@
 package com.blockix.backend.controller;
 
-import com.blockix.backend.dto.LoginRequest;
-import com.blockix.backend.dto.RefreshRequest;
-import com.blockix.backend.dto.RegisterRequest;
+import com.blockix.backend.payload.LoginRequest;
+import com.blockix.backend.payload.RefreshRequest;
+import com.blockix.backend.payload.RegisterRequest;
 import com.blockix.backend.model.Tokens;
 import com.blockix.backend.service.AuthService;
 import jakarta.validation.Valid;

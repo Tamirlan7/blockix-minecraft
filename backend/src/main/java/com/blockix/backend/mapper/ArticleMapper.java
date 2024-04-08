@@ -1,58 +1,28 @@
 package com.blockix.backend.mapper;
 
-import com.blockix.backend.dto.*;
+import com.blockix.backend.dto.ArticleDto;
 import com.blockix.backend.model.Article;
+import com.blockix.backend.payload.CreateArticleResponse;
+import com.blockix.backend.payload.DeleteArticleResponse;
+import com.blockix.backend.payload.GetArticleResponse;
+import com.blockix.backend.payload.UpdateArticleResponse;
 import org.springframework.stereotype.Component;
 
-@Component
 public class ArticleMapper {
 
-    public GetArticleResponse mapToGetArticleResponse(Article article) {
-        return GetArticleResponse.builder()
+    public static ArticleDto mapToDto(Article article) {
+        return ArticleDto.builder()
+                .id(article.getId())
                 .title(article.getTitle())
                 .body(article.getBody())
-                .createdAt(article.getCreatedAt())
-                .updatedAt(article.getUpdatedAt())
-                .id(article.getId())
                 .views(article.getViews().size())
                 .likes(article.getUserLikes().size())
-                .comments(article.getMessages())
                 .sharedCount(article.getSharedCount())
+                .createdAt(article.getCreatedAt())
+                .updatedAt(article.getUpdatedAt())
+                .mediaFiles(article.getMediaFiles())
+                .comments(article.getMessages().stream().map(ArticleMessageMapper::mapToDto).toList())
                 .build();
     }
 
-    public CreateArticleResponse mapToCreateArticleResponse(Article article) {
-        return CreateArticleResponse.builder()
-                .title(article.getTitle())
-                .body(article.getBody())
-                .createdAt(article.getCreatedAt())
-                .updatedAt(article.getUpdatedAt())
-                .id(article.getId())
-                .views(article.getViews().size())
-                .likes(article.getUserLikes().size())
-                .comments(article.getMessages())
-                .sharedCount(article.getSharedCount())
-                .build();
-    }
-
-    public DeleteArticleResponse mapToDeleteArticleResponse(Long articleId) {
-        return DeleteArticleResponse.builder()
-                .deletedSuccessfully(true)
-                .articleId(articleId)
-                .build();
-    }
-
-    public UpdateArticleResponse mapToUpdateArticleResponse(Article article) {
-        return UpdateArticleResponse.builder()
-                .title(article.getTitle())
-                .body(article.getBody())
-                .createdAt(article.getCreatedAt())
-                .updatedAt(article.getUpdatedAt())
-                .id(article.getId())
-                .views(article.getViews().size())
-                .likes(article.getUserLikes().size())
-                .comments(article.getMessages())
-                .sharedCount(article.getSharedCount())
-                .build();
-    }
 }

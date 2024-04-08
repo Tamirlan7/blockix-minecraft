@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class GetArticlesArgs {
-    private String title;
-    private Integer size;
-    private Integer page;
+@NoArgsConstructor
+@Builder
+public class ArticleMessageDto {
+    private long id;
+    private String message;
+    private UserDto sender;
 }

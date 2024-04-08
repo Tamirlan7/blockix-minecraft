@@ -1,6 +1,7 @@
 package com.blockix.backend.controller;
 
-import com.blockix.backend.dto.*;
+import com.blockix.backend.dto.ArticleDto;
+import com.blockix.backend.payload.*;
 import com.blockix.backend.service.ArticleComment;
 import com.blockix.backend.service.ArticleService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 

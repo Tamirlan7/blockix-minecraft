@@ -1,14 +1,13 @@
 package com.blockix.backend.service;
 
-import com.blockix.backend.dto.*;
 import com.blockix.backend.exception.CustomBadRequestException;
 import com.blockix.backend.exception.CustomInternalServerException;
 import com.blockix.backend.exception.CustomNotFoundException;
 import com.blockix.backend.mapper.ArticleMapper;
 import com.blockix.backend.model.*;
+import com.blockix.backend.payload.*;
 import com.blockix.backend.repository.ArticleMediaFileRepository;
 import com.blockix.backend.repository.ArticleRepository;
-import com.blockix.backend.repository.UserArticleMessageRepository;
 import com.blockix.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +28,6 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
-    private final ArticleMapper articleMapper;
     private final ArticleRepository articleRepository;
     private final ArticleMediaFileRepository articleMediaFileRepository;
     private final UserRepository userRepository;
@@ -70,24 +68,33 @@ public class ArticleService {
             throw new CustomInternalServerException("Unable to copy file");
         }
 
-        return articleMapper.mapToCreateArticleResponse(article);
+        return CreateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(article))
+                .build();
     }
 
 
     public Page<GetArticleResponse> getAllArticles(GetArticlesArgs args) {
         return articleRepository
                 .findByTitleContaining(args.getTitle(), PageRequest.of(args.getPage(), args.getSize(), Sort.by("id")))
-                .map(articleMapper::mapToGetArticleResponse);
+                .map(article -> GetArticleResponse.builder()
+                        .article(ArticleMapper.mapToDto(article))
+                        .build());
     }
 
     public GetArticleResponse findArticleById(Long id) {
         Article article = this.getArticleById(id);
-        return articleMapper.mapToGetArticleResponse(article);
+        return GetArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(article))
+                .build();
     }
 
     public DeleteArticleResponse deleteArticleById(Long id) {
         articleRepository.deleteById(id);
-        return articleMapper.mapToDeleteArticleResponse(id);
+        return DeleteArticleResponse.builder()
+                .deletedSuccessfully(true)
+                .articleId(id)
+                .build();
     }
 
     @Transactional
@@ -103,7 +110,9 @@ public class ArticleService {
         }
 
         Article updatedArticle = articleRepository.save(article);
-        return articleMapper.mapToUpdateArticleResponse(updatedArticle);
+        return UpdateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(updatedArticle))
+                .build();
     }
 
     public UpdateArticleResponse shareArticleById(Long id) {
@@ -112,7 +121,9 @@ public class ArticleService {
         article.setSharedCount(article.getSharedCount() + 1);
         Article updatedArticle = articleRepository.save(article);
 
-        return articleMapper.mapToUpdateArticleResponse(updatedArticle);
+        return UpdateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(updatedArticle))
+                .build();
     }
 
     @Transactional
@@ -130,20 +141,24 @@ public class ArticleService {
         article = articleRepository.save(article);
 
         // Возвращаем обновленную информацию о статье
-        return articleMapper.mapToUpdateArticleResponse(article);
+        return UpdateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(article))
+                .build();
     }
 
     @Transactional
     public UpdateArticleResponse viewArticleAnonymously(Long articleId) {
         Article article = this.getArticleById(articleId);
-        UserView view = UserView.builder()
+        ArticleView view = ArticleView.builder()
                 .anonymousUser(true)
                 .article(article)
                 .build();
 
         article.getViews().add(view);
         article = articleRepository.save(article);
-        return articleMapper.mapToUpdateArticleResponse(article);
+        return UpdateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(article))
+                .build();
     }
 
     @Transactional
@@ -154,14 +169,14 @@ public class ArticleService {
         boolean alreadyViewed = user.getViewedArticles()
                 .stream()
                 .anyMatch(
-                        userView -> userView.getArticle().getId().equals(articleId)
+                        articleView -> articleView.getArticle().getId().equals(articleId)
                 );
 
         if (alreadyViewed) {
             throw new CustomBadRequestException("User already viewed this article");
         }
 
-        UserView view = UserView.builder()
+        ArticleView view = ArticleView.builder()
                 .anonymousUser(false)
                 .article(article)
                 .user(user)
@@ -171,7 +186,9 @@ public class ArticleService {
         article.getViews().add(view);
 
         article = articleRepository.save(article);
-        return articleMapper.mapToUpdateArticleResponse(article);
+        return UpdateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(article))
+                .build();
     }
 
     private Article getArticleById(Long articleId) {
@@ -192,7 +209,7 @@ public class ArticleService {
         User user = this.extractUserFromAuthentication(authentication);
         Article article = this.getArticleById(articleId);
 
-        UserArticleMessage message = UserArticleMessage.builder()
+        ArticleMessage message = ArticleMessage.builder()
                 .message(body.comment())
                 .user(user)
                 .article(article)
@@ -201,6 +218,8 @@ public class ArticleService {
         user.getMessages().add(message);
         article.getMessages().add(message);
         article = articleRepository.save(article);
-        return articleMapper.mapToUpdateArticleResponse(article);
+        return UpdateArticleResponse.builder()
+                .article(ArticleMapper.mapToDto(article))
+                .build();
     }
 }

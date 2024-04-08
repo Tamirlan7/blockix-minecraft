@@ -1,26 +1,21 @@
 package com.blockix.backend.dto;
 
-import com.blockix.backend.model.UserArticleMessage;
+import com.blockix.backend.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class UpdateArticleResponse {
+@Builder
+public class UserDto {
     private long id;
-    private String title;
-    private String body;
-    private long sharedCount;
-    private long views;
-    private long likes;
-    private List<UserArticleMessage> comments;
+    private String username;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
+    private Role role;
 }

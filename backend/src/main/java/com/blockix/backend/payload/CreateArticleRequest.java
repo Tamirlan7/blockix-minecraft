@@ -1,4 +1,4 @@
-package com.blockix.backend.dto;
+package com.blockix.backend.payload;
 
 import org.springframework.web.multipart.MultipartFile;
 
